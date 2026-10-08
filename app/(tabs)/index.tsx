@@ -1,34 +1,47 @@
-import { StyleSheet, View, Text } from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 // Importing our custom StudentItem component to display each student in the list
 import StudentItem from "@/components/student-item";
 // Importing the list of students from our data file
 import { STUDENTS } from "@/data/students";
 // Importing SafeAreaView to ensure content is displayed within the safe area boundaries of a device
 import { SafeAreaView } from "react-native-safe-area-context";
-// NEW: Importing the SearchBar component to allow users to search for students
 import SearchBar from "@/components/search-bar";
-// NEW: Importing useState to manage the state of the search input
 import { useState } from "react";
 
 export default function HomeScreen() {
     // State 1: the current search query
     const [query, setQuery] = useState<string>("");
 
+    // Derived value: filter students based on query
+    // This is NOT state — it is computed from state every render
+    const filtered = STUDENTS.filter((s) => {
+        return (
+            s.name.toLowerCase().includes(query.toLowerCase()) || // check if name matches query OR
+            s.department.toLowerCase().includes(query.toLowerCase()) // check if department matches query
+        );
+    });
+
     return (
         // View is the container that contains the list of students.
         <SafeAreaView style={styles.container}>
-            {/* NEW: Add a page title for the student list */}
             <View style={styles.titleBar}>
                 <Text style={styles.title}>Student Directory</Text>
             </View>
 
-            {/* // NEW: Search Bar */}
-            <SearchBar value="" onChangeText={() => {}} />
+            {/* update the value and onChangeText function in the Search Bar */}
+            <SearchBar value={query} onChangeText={setQuery} />
 
-            {/* We map over the STUDENTS array and render a StudentItem for each student. */}
-            {STUDENTS.map((student) => (
-                <StudentItem key={student.id} student={student} onPress={() => {}} isSelected={false} />
-            ))}
+            {/* NEW: Student list using React Native's FlatList component*/}
+            <FlatList
+                data={filtered}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => <StudentItem student={item} onPress={() => {}} isSelected={false} />}
+                ListEmptyComponent={
+                    <View style={styles.empty}>
+                        <Text style={styles.emptyText}>No students match "{query}"</Text>
+                    </View>
+                }
+            />
         </SafeAreaView>
     );
 }
@@ -36,6 +49,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: "#F0F4F8",
     },
     titleContainer: {
         flexDirection: "row",
@@ -66,5 +80,17 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         color: "#FFFFFF",
+    },
+    count: {
+        fontSize: 12,
+        color: "#CCFBF1",
+    },
+    empty: {
+        padding: 40,
+        alignItems: "center",
+    },
+    emptyText: {
+        fontSize: 14,
+        color: "#94A3B8",
     },
 });
