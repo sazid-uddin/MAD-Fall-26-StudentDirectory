@@ -5,12 +5,17 @@ import StudentItem from "@/components/student-item";
 import { STUDENTS } from "@/data/students";
 // Importing SafeAreaView to ensure content is displayed within the safe area boundaries of a device
 import { SafeAreaView } from "react-native-safe-area-context";
+// NEW: Importing the SearchBar component to allow users to search for students
+import SearchBar from "@/components/search-bar";
 
 export default function HomeScreen() {
     return (
         // View is the container that contains the list of students.
-        // We map over the STUDENTS array and render a StudentItem for each student.
         <SafeAreaView style={styles.container}>
+            {/* // NEW: Search Bar */}
+            <SearchBar value="" onChangeText={() => {}} />
+
+            {/* We map over the STUDENTS array and render a StudentItem for each student. */}
             {STUDENTS.map((student) => (
                 <StudentItem key={student.id} student={student} onPress={() => {}} isSelected={false} />
             ))}
