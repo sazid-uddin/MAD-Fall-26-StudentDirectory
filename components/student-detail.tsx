@@ -1,6 +1,6 @@
 // components/student-detail.tsx
 
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useStudents } from "../context/students-context";
 import { Student } from "../data/students";
 
@@ -12,17 +12,26 @@ export default function StudentDetail({ student }: StudentDetailProps) {
     // Week 5: dispatch is available from the global context
     const { dispatch } = useStudents();
 
-    // Ask for confirmation, then remove the student from the global list
+    const removeStudent = () => {
+        dispatch({ type: "REMOVE_STUDENT", payload: student.id });
+    };
+
+    // Ask for confirmation, then remove the student from the global list.
+    // Alert.alert does nothing in the web browser, so on web we use the
+    // browser's own confirm dialog instead.
     const handleRemove = () => {
-        Alert.alert("Remove Student", `Remove ${student.name} from the directory?`, [
+        const message = `Remove ${student.name} from the directory?`;
+
+        if (Platform.OS === "web") {
+            if (window.confirm(message)) {
+                removeStudent();
+            }
+            return;
+        }
+
+        Alert.alert("Remove Student", message, [
             { text: "Cancel", style: "cancel" },
-            {
-                text: "Remove",
-                style: "destructive",
-                onPress: () => {
-                    dispatch({ type: "REMOVE_STUDENT", payload: student.id });
-                },
-            },
+            { text: "Remove", style: "destructive", onPress: removeStudent },
         ]);
     };
 
