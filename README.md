@@ -1,8 +1,8 @@
 # StudentDirectory
 
-A searchable, scrollable list of student profile cards with a tappable detail view, built with **React Native**, **Expo**, and **TypeScript**.
+A searchable, scrollable list of student profile cards with a tappable detail view and an "Add Student" form with live validation, built with **React Native**, **Expo**, and **TypeScript**.
 
-This is the Week 2 project for _Mobile Application Development with React Native & Expo_ at the Department of Computer Science, Faculty of Science and Technology, American International University-Bangladesh (AIUB). It follows the Week 2 lab manual, "React Native Core UI & Building a Student Directory".
+This is the Week 4 project for _Mobile Application Development with React Native & Expo_ at the Department of Computer Science, Faculty of Science and Technology, American International University-Bangladesh (AIUB). It extends the Week 2 StudentDirectory and follows the Week 4 lab manual, "useState, useEffect & Forms — Adding Yourself to StudentDirectory".
 
 ## Features
 
@@ -12,6 +12,11 @@ This is the Week 2 project for _Mobile Application Development with React Native
 - **Tap to select:** tapping a row highlights it and shows a detail card below the list. Tapping the same row again deselects it.
 - **Detail view:** the card shows the student's bio and skill badges. It uses conditional rendering with `useState`, so there is no navigation.
 - **Typed props:** component props are described with TypeScript interfaces.
+- **Add Student form:** five controlled fields held in one combined `useState` object (`name`, `studentId`, `department`, `bio`, `skillsText`).
+- **Live validation:** a `useEffect` with the dependency array `[formData]` re-validates the whole form on every keystroke. Student ID must match `NN-NNNNN-N`.
+- **Touched fields:** errors only appear after a field is blurred, or after a submit attempt.
+- **Fake async submit:** a `setTimeout` simulates a 1.5 second network call, and its `useEffect` cleanup cancels it if the screen unmounts.
+- **Lifting state up:** the form hands the new student back to the home screen through the `onSubmitSuccess` callback.
 
 ## Tech Stack
 
@@ -63,11 +68,13 @@ Then add `"jsx": "react-native"` under `compilerOptions` in `tsconfig.json`.
 StudentDirectory/
 ├── app/
 │   └── (tabs)/
-│       └── index.tsx          # main screen: state, filtering, FlatList
+│       └── index.tsx          # main screen: state, filtering, FlatList, form toggle
 ├── components/
 │   ├── search-bar.tsx         # controlled search input
 │   ├── student-item.tsx       # single row in the list
-│   └── student-detail.tsx     # expanded detail card
+│   ├── student-detail.tsx     # expanded detail card
+│   ├── form-field.tsx         # reusable labeled input + error text
+│   └── add-student-form.tsx   # the full Add Student form
 ├── data/
 │   └── students.ts            # Student interface + static STUDENTS array
 └── ...
@@ -98,7 +105,9 @@ Avatars come from [pravatar.cc](https://pravatar.cc/), a free placeholder image 
 - **`StudentItem`** renders one row: avatar, name, department, and ID. It uses a Flexbox row, with `flex: 1` on the text column so it fills the space between the avatar and the chevron. It is wrapped in a `TouchableOpacity`. Props are `student`, `onPress`, and `isSelected`.
 - **`SearchBar`** is a controlled `TextInput`. The parent owns the state and passes `value` and `onChangeText`. The `placeholder` prop is optional and defaults to "Search students...".
 - **`StudentDetail`** shows the selected student's name, department, ID badge, bio, and skill badges.
-- **`HomeScreen`** (`app/(tabs)/index.tsx`) holds two pieces of state: `query` and `selectedStudent`. It computes `filtered` from `STUDENTS` and `query` on every render.
+- **`FormField`** pairs a labeled `TextInput` with an optional inline error message. It accepts an `onBlur` callback.
+- **`AddStudentForm`** owns the form state, validation, touched tracking, and the fake submit. It calls `onSubmitSuccess(newStudent)` when the submit finishes.
+- **`HomeScreen`** (`app/(tabs)/index.tsx`) holds four pieces of state: `query`, `selectedStudent`, `students` (a local copy of `STUDENTS` that can grow), and `showForm`. It computes `filtered` from `students` and `query` on every render.
 
 ### Key concepts covered
 
@@ -108,6 +117,9 @@ Avatars come from [pravatar.cc](https://pravatar.cc/), a free placeholder image 
 - Conditional rendering: `{selectedStudent && <StudentDetail ... />}`
 - Optional chaining (`selectedStudent?.id`) and nullish coalescing (`??`)
 - Flexbox layout: `flexDirection`, `alignItems`, `flex`, and `alignSelf`
+- Combined versus separate `useState`, and `keyof` typed field updaters
+- `useEffect` with a dependency array, and cleanup functions
+- Regex validation, touched state, and derived values such as `isFormValid`
 
 ## Common Issues
 
@@ -130,10 +142,26 @@ Optional extensions to try:
 Commit after each major section instead of all at once. Suggested commit points:
 
 ```bash
-git commit -m "Add student data file and TypeScript interface"
-git commit -m "Add StudentItem component with Flexbox row layout and Image"
-git commit -m "Add SearchBar, StudentDetail, and wire up index.tsx"
+git commit -m "Add FormField reusable component"
+git commit -m "Add AddStudentForm with combined state and live validation"
+git commit -m "Add fake async submit with cleanup, wire up touched state"
+git commit -m "Integrate AddStudentForm into StudentDirectory screen"
 ```
+
+## Branches
+
+Each branch holds the finished code at the end of one lab session. Start a new lab from the branch of the previous session.
+
+| Branch | State of the project |
+| --- | --- |
+| `week-02` | Directory list with search and tap-to-select detail card |
+| `week-04` | Week 2 plus the AddStudent form (controlled inputs, live validation, fake async submit) |
+| `week-05` | Week 4 plus global state with `useReducer` + `useContext`, an `add-student` route, and Remove Student |
+| `week-06` | Starter for the Week 6 lab. Identical code to `week-05` |
+
+Week 3 builds a separate app (NewsReader), so there is no `week-03` branch here.
+
+Switch with `git checkout week-05`. The graded Lab Task of each week is not included in these branches.
 
 ## Course Information
 
@@ -141,4 +169,4 @@ git commit -m "Add SearchBar, StudentDetail, and wire up index.tsx"
 - **Instructor:** Md. Sazid Uddin
 - **Department:** Computer Science, Faculty of Science and Technology, AIUB
 - **Semester:** Fall 26-27
-- **Session:** Week 2
+- **Session:** Week 4
