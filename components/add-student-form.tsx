@@ -1,13 +1,11 @@
 // components/add-student-form.tsx
 
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text } from "react-native";
+import { useStudents } from "../context/students-context";
 import { Student } from "../data/students";
 import FormField from "./form-field";
-
-interface AddStudentFormProps {
-    onSubmitSuccess: (student: Student) => void;
-}
 
 // Shape of the form's own state — note skillsText is a single
 // string here; it gets split into an array only on submit.
@@ -60,7 +58,10 @@ function validateForm(data: FormData): FormErrors {
     return newErrors;
 }
 
-export default function AddStudentForm({ onSubmitSuccess }: AddStudentFormProps) {
+export default function AddStudentForm() {
+    // Week 5: the form dispatches to the global context directly
+    const { dispatch } = useStudents();
+
     // Combined state — all 5 text fields live together
     const [formData, setFormData] = useState<FormData>({
         name: "",
@@ -127,8 +128,8 @@ export default function AddStudentForm({ onSubmitSuccess }: AddStudentFormProps)
     };
 
     // Submit effect
-    // Simulates a network request and calls onSubmitSuccess with the
-    // new student data after a 1.5 second delay.
+    // Simulates a network request and dispatches the new student to the
+    // global context after a 1.5 second delay.
     useEffect(() => {
         if (!submitTrigger) return;
 
@@ -149,7 +150,8 @@ export default function AddStudentForm({ onSubmitSuccess }: AddStudentFormProps)
 
             setIsSubmitting(false);
             setSubmitTrigger(false);
-            onSubmitSuccess(newStudent);
+            dispatch({ type: "ADD_STUDENT", payload: newStudent });
+            router.back();
         }, 1500);
 
         // Cleanup: if the component unmounts (user navigates away) before

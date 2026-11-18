@@ -24,6 +24,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="add-student"
+        options={{
+          title: 'Add Student',
+          href: null, // routable but hidden from the tab bar
+          headerShown: true,
+          headerTitle: 'Join the Directory',
+          headerStyle: { backgroundColor: '#0D1F4E' },
+          headerTintColor: '#FFFFFF',
+        }}
+      />
+      <Tabs.Screen
         name="explore"
         options={{
           title: 'Explore',

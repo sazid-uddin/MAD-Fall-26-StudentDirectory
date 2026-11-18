@@ -1,23 +1,21 @@
+import { router } from "expo-router";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import StudentItem from "@/components/student-item";
-import { Student, STUDENTS } from "@/data/students";
+import { Student } from "@/data/students";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchBar from "@/components/search-bar";
 import { useState } from "react";
 // NEW: import the StudentDetail component to show student details when selected
 import StudentDetail from "@/components/student-detail";
-// NEW: import the AddStudentForm component (Week 4)
-import AddStudentForm from "@/components/add-student-form";
+// NEW (Week 5): read the student list from the global context
+import { useStudents } from "@/context/students-context";
 
 export default function HomeScreen() {
     // State 1: the current search query
     const [query, setQuery] = useState<string>("");
 
-    // NEW (Week 4): local copy of the student list so we can add to it
-    const [students, setStudents] = useState<Student[]>(STUDENTS);
-
-    // NEW (Week 4): controls whether the form or the directory is shown
-    const [showForm, setShowForm] = useState<boolean>(false);
+    // NEW (Week 5): read students directly from the global context
+    const { students } = useStudents();
 
     // NEW: State 2: the currently selected student (null = none selected)
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -26,18 +24,6 @@ export default function HomeScreen() {
     const handleSelect = (student: Student) => {
         setSelectedStudent((prev) => (prev?.id === student.id ? null : student));
     };
-
-    // NEW (Week 4): lifting state up. The form hands the new student back
-    // to this parent screen, which prepends it to the list.
-    const handleNewStudent = (newStudent: Student) => {
-        setStudents((prev) => [newStudent, ...prev]);
-        setShowForm(false);
-    };
-
-    // NEW (Week 4): show the form instead of the directory
-    if (showForm) {
-        return <AddStudentForm onSubmitSuccess={handleNewStudent} />;
-    }
 
     // Derived value: filter students based on query
     // This is NOT state — it is computed from state every render
@@ -53,8 +39,8 @@ export default function HomeScreen() {
         <SafeAreaView style={styles.container}>
             <View style={styles.titleBar}>
                 <Text style={styles.title}>Student Directory</Text>
-                {/* NEW (Week 4): button that opens the AddStudent form */}
-                <Pressable style={styles.addButton} onPress={() => setShowForm(true)}>
+                {/* NEW (Week 5): navigate to the AddStudent screen, no prop passing needed */}
+                <Pressable style={styles.addButton} onPress={() => router.push("/(tabs)/add-student")}>
                     <Text style={styles.addButtonText}>+ Add</Text>
                 </Pressable>
             </View>
