@@ -1,8 +1,8 @@
 # StudentDirectory
 
-A searchable, scrollable list of student profile cards with a tappable detail view and an "Add Student" form with live validation, built with **React Native**, **Expo**, and **TypeScript**.
+A searchable, scrollable list of student profile cards with a tappable detail view an "Add Student" form with live validation, and global state with `useReducer` and `useContext`, built with **React Native**, **Expo**, and **TypeScript**.
 
-This is the Week 4 project for _Mobile Application Development with React Native & Expo_ at the Department of Computer Science, Faculty of Science and Technology, American International University-Bangladesh (AIUB). It extends the Week 2 StudentDirectory and follows the Week 4 lab manual, "useState, useEffect & Forms — Adding Yourself to StudentDirectory".
+This is the Week 5 project for _Mobile Application Development with React Native & Expo_ at the Department of Computer Science, Faculty of Science and Technology, American International University-Bangladesh (AIUB). It extends the Week 4 StudentDirectory and follows the Week 5 lab manual, "useReducer & useContext — Global State for StudentDirectory".
 
 ## Features
 
@@ -16,7 +16,10 @@ This is the Week 4 project for _Mobile Application Development with React Native
 - **Live validation:** a `useEffect` with the dependency array `[formData]` re-validates the whole form on every keystroke. Student ID must match `NN-NNNNN-N`.
 - **Touched fields:** errors only appear after a field is blurred, or after a submit attempt.
 - **Fake async submit:** a `setTimeout` simulates a 1.5 second network call, and its `useEffect` cleanup cancels it if the screen unmounts.
-- **Lifting state up:** the form hands the new student back to the home screen through the `onSubmitSuccess` callback.
+- **Global state:** the student list lives in a `StudentsContext` powered by `useReducer`. The Week 4 `onSubmitSuccess` callback is gone.
+- **Named actions:** `ADD_STUDENT`, `REMOVE_STUDENT`, and `RESET` are described by a typed action union in `context/students-reducer.ts`.
+- **Add Student route:** the form has its own screen, `app/(tabs)/add-student.tsx`, hidden from the tab bar with `href: null`.
+- **Remove Student:** the detail card has a confirmation `Alert` and dispatches `REMOVE_STUDENT`.
 
 ## Tech Stack
 
@@ -67,14 +70,19 @@ Then add `"jsx": "react-native"` under `compilerOptions` in `tsconfig.json`.
 ```
 StudentDirectory/
 ├── app/
+│   ├── _layout.tsx            # root layout: wraps the Stack in StudentsProvider
 │   └── (tabs)/
-│       └── index.tsx          # main screen: state, filtering, FlatList, form toggle
+│       ├── index.tsx          # main screen: reads students from context
+│       └── add-student.tsx    # route that renders AddStudentForm
 ├── components/
 │   ├── search-bar.tsx         # controlled search input
 │   ├── student-item.tsx       # single row in the list
-│   ├── student-detail.tsx     # expanded detail card
+│   ├── student-detail.tsx     # expanded detail card with Remove button
 │   ├── form-field.tsx         # reusable labeled input + error text
 │   └── add-student-form.tsx   # the full Add Student form
+├── context/
+│   ├── students-reducer.ts    # action types + reducer function
+│   └── students-context.tsx   # context, provider, useStudents hook
 ├── data/
 │   └── students.ts            # Student interface + static STUDENTS array
 └── ...
@@ -106,8 +114,9 @@ Avatars come from [pravatar.cc](https://pravatar.cc/), a free placeholder image 
 - **`SearchBar`** is a controlled `TextInput`. The parent owns the state and passes `value` and `onChangeText`. The `placeholder` prop is optional and defaults to "Search students...".
 - **`StudentDetail`** shows the selected student's name, department, ID badge, bio, and skill badges.
 - **`FormField`** pairs a labeled `TextInput` with an optional inline error message. It accepts an `onBlur` callback.
-- **`AddStudentForm`** owns the form state, validation, touched tracking, and the fake submit. It calls `onSubmitSuccess(newStudent)` when the submit finishes.
-- **`HomeScreen`** (`app/(tabs)/index.tsx`) holds four pieces of state: `query`, `selectedStudent`, `students` (a local copy of `STUDENTS` that can grow), and `showForm`. It computes `filtered` from `students` and `query` on every render.
+- **`AddStudentForm`** owns the form state, validation, touched tracking, and the fake submit. It takes no props: when the submit finishes it dispatches `ADD_STUDENT` and calls `router.back()`.
+- **`StudentsProvider` and `useStudents`** (`context/students-context.tsx`) supply `{ students, dispatch }` to every screen. `useStudents()` throws if it is used outside the provider.
+- **`HomeScreen`** (`app/(tabs)/index.tsx`) keeps only `query` and `selectedStudent` as local state. It reads `students` from `useStudents()` and computes `filtered` on every render.
 
 ### Key concepts covered
 
@@ -120,6 +129,9 @@ Avatars come from [pravatar.cc](https://pravatar.cc/), a free placeholder image 
 - Combined versus separate `useState`, and `keyof` typed field updaters
 - `useEffect` with a dependency array, and cleanup functions
 - Regex validation, touched state, and derived values such as `isFormValid`
+- `useReducer` with a discriminated union of actions
+- `createContext`, a Provider component, and a custom hook with a guard
+- Prop drilling versus global state, and why local-only state stays local
 
 ## Common Issues
 
@@ -142,10 +154,10 @@ Optional extensions to try:
 Commit after each major section instead of all at once. Suggested commit points:
 
 ```bash
-git commit -m "Add FormField reusable component"
-git commit -m "Add AddStudentForm with combined state and live validation"
-git commit -m "Add fake async submit with cleanup, wire up touched state"
-git commit -m "Integrate AddStudentForm into StudentDirectory screen"
+git commit -m "Add students reducer with ADD_STUDENT, REMOVE_STUDENT, RESET actions"
+git commit -m "Add StudentsContext, StudentsProvider, and useStudents hook"
+git commit -m "Wrap root layout in StudentsProvider, refactor index.tsx and AddStudentForm"
+git commit -m "Add Remove Student action to StudentDetail via dispatch"
 ```
 
 ## Branches
@@ -169,4 +181,4 @@ Switch with `git checkout week-05`. The graded Lab Task of each week is not incl
 - **Instructor:** Md. Sazid Uddin
 - **Department:** Computer Science, Faculty of Science and Technology, AIUB
 - **Semester:** Fall 26-27
-- **Session:** Week 4
+- **Session:** Week 5
