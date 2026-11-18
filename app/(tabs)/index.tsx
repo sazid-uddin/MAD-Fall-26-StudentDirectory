@@ -25,6 +25,11 @@ export default function HomeScreen() {
         setSelectedStudent((prev) => (prev?.id === student.id ? null : student));
     };
 
+    // NEW (Week 5): derive the selected student from the global list.
+    // If the selected student was removed, this becomes null and the
+    // detail panel closes on its own.
+    const selected = students.find((s) => s.id === selectedStudent?.id) ?? null;
+
     // Derived value: filter students based on query
     // This is NOT state — it is computed from state every render
     const filtered = students.filter((s) => {
@@ -62,7 +67,7 @@ export default function HomeScreen() {
             />
 
             {/* NEW: Detail panel — only shown when a student is selected */}
-            {selectedStudent && <StudentDetail student={selectedStudent} />}
+            {selected && <StudentDetail student={selected} />}
         </SafeAreaView>
     );
 }
