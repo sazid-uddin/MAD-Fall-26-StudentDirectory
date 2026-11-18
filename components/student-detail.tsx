@@ -1,6 +1,7 @@
 // components/student-detail.tsx
 
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useStudents } from "../context/students-context";
 import { Student } from "../data/students";
 
 interface StudentDetailProps {
@@ -8,6 +9,23 @@ interface StudentDetailProps {
 }
 
 export default function StudentDetail({ student }: StudentDetailProps) {
+    // Week 5: dispatch is available from the global context
+    const { dispatch } = useStudents();
+
+    // Ask for confirmation, then remove the student from the global list
+    const handleRemove = () => {
+        Alert.alert("Remove Student", `Remove ${student.name} from the directory?`, [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Remove",
+                style: "destructive",
+                onPress: () => {
+                    dispatch({ type: "REMOVE_STUDENT", payload: student.id });
+                },
+            },
+        ]);
+    };
+
     return (
         <View style={styles.card}>
             {/* Header row: name + department */}
@@ -30,6 +48,11 @@ export default function StudentDetail({ student }: StudentDetailProps) {
                     </View>
                 ))}
             </View>
+
+            {/* Week 5: remove this student from the directory */}
+            <Pressable style={styles.removeButton} onPress={handleRemove}>
+                <Text style={styles.removeText}>Remove from Directory</Text>
+            </Pressable>
         </View>
     );
 }
@@ -104,5 +127,18 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: "#1D4ED8",
         fontWeight: "500",
+    },
+    removeButton: {
+        marginTop: 16,
+        paddingVertical: 10,
+        alignItems: "center",
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: "#EF4444",
+    },
+    removeText: {
+        color: "#EF4444",
+        fontSize: 13,
+        fontWeight: "600",
     },
 });
