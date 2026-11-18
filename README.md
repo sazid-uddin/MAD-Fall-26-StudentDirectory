@@ -2,6 +2,8 @@
 
 A searchable, scrollable list of student profile cards with a tappable detail view an "Add Student" form with live validation, and global state with `useReducer` and `useContext`, built with **React Native**, **Expo**, and **TypeScript**.
 
+**This branch is the starting point for the Week 6 lab.** It contains the finished Week 5 code, without the graded Week 5 Lab Task.
+
 This is the Week 5 project for _Mobile Application Development with React Native & Expo_ at the Department of Computer Science, Faculty of Science and Technology, American International University-Bangladesh (AIUB). It extends the Week 4 StudentDirectory and follows the Week 5 lab manual, "useReducer & useContext — Global State for StudentDirectory".
 
 ## Features
@@ -181,4 +183,4 @@ Switch with `git checkout week-05`. The graded Lab Task of each week is not incl
 - **Instructor:** Md. Sazid Uddin
 - **Department:** Computer Science, Faculty of Science and Technology, AIUB
 - **Semester:** Fall 26-27
-- **Session:** Week 5
+- **Session:** Week 6 (starter, code from Week 5)
